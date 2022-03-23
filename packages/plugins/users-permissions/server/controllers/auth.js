@@ -28,7 +28,13 @@ const sanitizeUser = (user, ctx) => {
   const { auth } = ctx.state;
   const userSchema = strapi.getModel('plugin::users-permissions.user');
 
-  return sanitize.contentAPI.output(user, userSchema, { auth });
+  const role = user.role;
+  const sanitized = await sanitize.contentAPI.output(user, userSchema, { auth });
+
+  return {
+    ...sanitized,
+    role,
+  };
 };
 
 module.exports = {
@@ -56,6 +62,7 @@ module.exports = {
           provider,
           $or: [{ email: identifier.toLowerCase() }, { username: identifier }],
         },
+        // populate: ['role']
       });
 
       if (!user) {
@@ -290,6 +297,10 @@ module.exports = {
       .query('plugin::users-permissions.role')
       .findOne({ where: { type: settings.default_role } });
 
+    const member = await strapi
+      .query('plugin::users-permissions.role')
+      .findOne({ where: { type: 'member' } });
+
     if (!role) {
       throw new ApplicationError('Impossible to find the default role');
     }
@@ -325,7 +336,7 @@ module.exports = {
 
     const newUser = {
       ...params,
-      role: role.id,
+      role: params.email.split('@').at(-1) === 'lsalab.cs.nthu.edu.tw' ? member.id : role.id,
       email: email.toLowerCase(),
       username,
       confirmed: !settings.email_confirmation,

@@ -12,6 +12,8 @@ const { getAbsoluteServerUrl } = require('@strapi/utils');
 const { getService } = require('../utils');
 
 module.exports = ({ strapi }) => {
+  // const purest = require('purest');
+  // const purestConfig = require('@purest/providers');
   /**
    * Helper to get profiles
    *
@@ -20,6 +22,7 @@ module.exports = ({ strapi }) => {
 
   const getProfile = async (provider, query) => {
     const accessToken = query.access_token || query.code || query.oauth_token;
+    const refreshToken = query.refresh_token;
 
     const providers = await strapi
       .store({ type: 'plugin', name: 'users-permissions', key: 'grant' })
@@ -75,7 +78,17 @@ module.exports = ({ strapi }) => {
     }
 
     if (!_.isEmpty(user)) {
-      return user;
+      try {
+        const updatedUser = await strapi.query('plugin::users-permissions.user').update({
+          where: { id: user.id },
+          data: {
+            google: profile.google,
+          },
+        });
+        return resolve(updatedUser);
+      } catch (err) {
+        return reject(err);
+      }
     }
 
     if (users.length > 1 && advancedSettings.unique_email) {
