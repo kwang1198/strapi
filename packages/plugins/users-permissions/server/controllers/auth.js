@@ -24,7 +24,7 @@ const {
 const { getAbsoluteAdminUrl, getAbsoluteServerUrl, sanitize } = utils;
 const { ApplicationError, ValidationError } = utils.errors;
 
-const sanitizeUser = (user, ctx) => {
+const sanitizeUser = async (user, ctx) => {
   const { auth } = ctx.state;
   const userSchema = strapi.getModel('plugin::users-permissions.user');
 

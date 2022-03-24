@@ -99,13 +99,13 @@ const initAdvancedOptions = async (pluginStore) => {
   }
 };
 
-// const initConfig = async () => {
-//   const env = str => process.env[str];
-//   strapi.config.set(
-//     'plugin.users-permissions',
-//     strapi.config.get('plugin.users-permissions')({ env })
-//   );
-// };
+const initConfig = async () => {
+  const env = (str) => process.env[str];
+  strapi.config.set(
+    'plugin.users-permissions',
+    strapi.config.get('plugin.users-permissions')({ env })
+  );
+};
 
 module.exports = async ({ strapi }) => {
   const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
